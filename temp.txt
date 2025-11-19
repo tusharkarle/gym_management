@@ -1,8 +1,0 @@
-Implement below features
-1. Add a divider in sidepanel for title, navigating section  and logout 
-2. There is sidebar and main content screen. Main content screen is divided into title and content of the section
-    a. Show main screen title at the top with proper UI/UX and utilizing complete width of the screen. decide color what will loook best. aslo add divider to seperate title and main screen
-
-3. On dashboard section
-    a. Just keep welcome, dont add admin and all 
-    b. Remove the Active Members and Today's Check-ins from top panel and add them as card in below section

@@ -155,37 +155,22 @@ export default function Members() {
     }
   }
 
+
   return (
     <Box >
-      <Box sx={{ p: { xs: 2, sm: 3, lg: 4 } }}>
-        <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-          <Box>
-            <Typography variant="h3" component="h1" gutterBottom>
-              Members
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Manage your gym members ({members.length} total)
-            </Typography>
-          </Box>
-          <Stack direction="row" spacing={2}>
-            <Button 
-              onClick={handleExportToExcel}
-              variant="outlined"
-              startIcon={<DownloadIcon />}
-              disabled={members.length === 0}
-            >
-              Export to Excel
-            </Button>
-            <Button 
-              onClick={() => setShowAddForm(true)}
-              variant="contained"
-              startIcon={<AddIcon />}
-            >
-              Add Member
-            </Button>
-          </Stack>
-        </Box>
-
+      {/* Hidden buttons for triggering from header */}
+      <button 
+        id="members-export-btn" 
+        onClick={handleExportToExcel}
+        style={{ display: 'none' }}
+      />
+      <button 
+        id="members-new-btn" 
+        onClick={() => setShowAddForm(true)}
+        style={{ display: 'none' }}
+      />
+      
+      <Box sx={{ p: { xs: 2, sm: 2.5, lg: 3 } }}>
         {/* Filters */}
         <Paper sx={{ p: 3, mb: 3 }}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>

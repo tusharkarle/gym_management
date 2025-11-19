@@ -6,27 +6,13 @@ import {
   Paper,
   Card,
   CardContent,
-  CardActions,
   Grid,
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableContainer,
-  IconButton,
-  Chip,
-  Divider,
   Stack
 } from '@mui/material'
 import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  People as PeopleIcon
+  People as PeopleIcon,
+  Settings as SettingsIcon
 } from '@mui/icons-material'
-import PackageForm from '../components/forms/PackageForm'
-import { PackageFormData } from '../types'
 
 interface Package {
   id: number
@@ -40,8 +26,6 @@ interface Package {
 }
 
 export default function Packages() {
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [editingPackage, setEditingPackage] = useState<Package | null>(null)
   const [packages, setPackages] = useState<Package[]>([
     // Mock data for development
     {
@@ -85,58 +69,7 @@ export default function Packages() {
       updatedAt: new Date()
     }
   ])
-  const [loading, setLoading] = useState(false)
 
-  const handleAddPackage = async (data: PackageFormData) => {
-    try {
-      // TODO: Replace with API call
-      const newPackage: Package = {
-        id: Math.max(...packages.map(p => p.id)) + 1,
-        ...data,
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-      setPackages(prev => [...prev, newPackage])
-      setShowAddForm(false)
-      alert('Package added successfully!')
-    } catch (error) {
-      console.error('Error adding package:', error)
-      alert('Error adding package. Please try again.')
-    }
-  }
-
-  const handleEditPackage = async (data: PackageFormData) => {
-    if (!editingPackage) return
-    
-    try {
-      // TODO: Replace with API call
-      const updatedPackage = {
-        ...editingPackage,
-        ...data,
-        updatedAt: new Date()
-      }
-      setPackages(prev => prev.map(p => p.id === editingPackage.id ? updatedPackage : p))
-      setEditingPackage(null)
-      alert('Package updated successfully!')
-    } catch (error) {
-      console.error('Error updating package:', error)
-      alert('Error updating package. Please try again.')
-    }
-  }
-
-  const handleDeletePackage = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this package?')) return
-    
-    try {
-      // TODO: Replace with API call
-      setPackages(prev => prev.filter(p => p.id !== id))
-      alert('Package deleted successfully!')
-    } catch (error) {
-      console.error('Error deleting package:', error)
-      alert('Error deleting package. Please try again.')
-    }
-  }
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -157,63 +90,46 @@ export default function Packages() {
   }
 
   return (
-    <Box sx={{ height: '100vh', overflow: 'auto' }}>
-      <Box sx={{ p: { xs: 2, sm: 3, lg: 4 } }}>
-        {/* Enhanced Header Section */}
-        <Box sx={{ 
-          mb: 4, 
-          p: 3, 
-          bgcolor: 'background.paper', 
-          borderRadius: 2, 
-          border: 1, 
-          borderColor: 'divider',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 2
-        }}>
-          <Box>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 1 }}>
-              Membership Packages
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-              Configure and manage your gym membership plans
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {packages.length} active packages • Monthly revenue potential: ₹{packages.reduce((sum, pkg) => sum + (pkg.price * (pkg.durationMonths === 1 ? 1 : pkg.price / pkg.durationMonths)), 0).toLocaleString()}
-            </Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Box sx={{ textAlign: 'right' }}>
-              <Typography variant="caption" color="text.secondary">
-                Most Popular
+    <Box>
+      {/* Hidden buttons for triggering from header */}
+      <button 
+        id="packages-new-btn" 
+        onClick={() => window.location.href = '/settings'}
+        style={{ display: 'none' }}
+      />
+      
+      <Box sx={{ p: { xs: 2, sm: 2.5, lg: 3 } }}>
+
+        {/* Management Notice */}
+        <Paper sx={{ p: 3, mb: 3, bgcolor: 'primary.50' }}>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <SettingsIcon sx={{ color: 'primary.main' }} />
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="body1" fontWeight="medium" color="primary.main">
+                Package Management Moved to Settings
               </Typography>
-              <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 'bold' }}>
-                Premium Quarterly
+              <Typography variant="body2" color="text.secondary">
+                To add, edit, or manage membership packages, please go to Settings → Package Management
               </Typography>
             </Box>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => setShowAddForm(true)}
-              size="medium"
+            <Button 
+              variant="contained" 
+              onClick={() => window.location.href = '/settings'}
+              size="small"
             >
-              Add Package
+              Go to Settings
             </Button>
-          </Box>
-        </Box>
+          </Stack>
+        </Paper>
 
-        {/* Package Grid */}
+        {/* Package Grid - Read Only */}
         <Box sx={{ maxHeight: '75vh', overflowY: 'auto', mb: 3 }}>
           <Grid container spacing={2}>
             {packages.map((pkg) => (
               <Grid item xs={12} md={4} lg={3} key={pkg.id}>
                 <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <CardContent sx={{ flexGrow: 1, p: 2 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
-                    <Box>
+                    <Box sx={{ mb: 1.5 }}>
                       <Typography variant="subtitle1" component="h3" gutterBottom>
                         {pkg.name}
                       </Typography>
@@ -221,43 +137,30 @@ export default function Packages() {
                         {getDurationText(pkg.durationMonths)}
                       </Typography>
                     </Box>
-                    <Stack direction="row" spacing={1}>
-                      <IconButton
-                        onClick={() => setEditingPackage(pkg)}
-                        size="small"
-                        color="primary"
-                        title="Edit Package Fees"
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </Stack>
-                  </Box>
 
-                  <Box sx={{ mb: 1.5 }}>
-                    <Typography variant="h5" color="primary" fontWeight="bold">
-                      {formatPrice(pkg.price)}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {formatPrice(getMonthlyRate(pkg.price, pkg.durationMonths))}/month
-                    </Typography>
-                  </Box>
+                    <Box sx={{ mb: 1.5 }}>
+                      <Typography variant="h5" color="primary" fontWeight="bold">
+                        {formatPrice(pkg.price)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {formatPrice(getMonthlyRate(pkg.price, pkg.durationMonths))}/month
+                      </Typography>
+                    </Box>
 
-                  {pkg.description && (
-                    <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
-                      {pkg.description}
-                    </Typography>
-                  )}
-                </CardContent>
-                
-                <CardActions sx={{ justifyContent: 'center', px: 2, pb: 1.5, pt: 0 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <PeopleIcon sx={{ mr: 0.5, color: 'text.secondary' }} />
-                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
-                      Active Members: 0
-                    </Typography>
-                  </Box>
-                </CardActions>
-              </Card>
+                    {pkg.description && (
+                      <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
+                        {pkg.description}
+                      </Typography>
+                    )}
+                    
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <PeopleIcon sx={{ mr: 0.5, color: 'text.secondary' }} />
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
+                        Active Members: 0
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                </Card>
               </Grid>
             ))}
           </Grid>
@@ -265,34 +168,17 @@ export default function Packages() {
 
         {packages.length === 0 && (
           <Paper sx={{ p: 4, textAlign: 'center' }}>
-            <Typography variant="body1" color="text.secondary">
-              No packages configured. Contact administrator to set up membership packages.
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+              No packages configured. 
             </Typography>
+            <Button 
+              variant="contained" 
+              onClick={() => window.location.href = '/settings'}
+              startIcon={<SettingsIcon />}
+            >
+              Go to Settings to Add Packages
+            </Button>
           </Paper>
-        )}
-
-
-        {/* Add Package Form */}
-        <PackageForm
-          isOpen={showAddForm}
-          onClose={() => setShowAddForm(false)}
-          onSubmit={handleAddPackage}
-        />
-
-        {/* Edit Package Form */}
-        {editingPackage && (
-          <PackageForm
-            isOpen={true}
-            onClose={() => setEditingPackage(null)}
-            onSubmit={handleEditPackage}
-            initialData={{
-              name: editingPackage.name,
-              durationMonths: editingPackage.durationMonths,
-              price: editingPackage.price,
-              description: editingPackage.description,
-            }}
-            isEditing={true}
-          />
         )}
       </Box>
     </Box>

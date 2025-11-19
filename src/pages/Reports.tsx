@@ -227,16 +227,15 @@ export default function Reports() {
   }
 
   return (
-    <Box sx={{ height: '100vh', overflow: 'auto' }}>
-      <Box sx={{ p: { xs: 2, sm: 3, lg: 4 } }}>
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h3" component="h1" gutterBottom>
-            Reports & Analytics
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Track performance, revenue, and member insights
-          </Typography>
-        </Box>
+    <Box>
+      {/* Hidden buttons for triggering from header */}
+      <button 
+        id="reports-export-btn" 
+        onClick={() => exportReport(activeTab)}
+        style={{ display: 'none' }}
+      />
+      
+      <Box sx={{ p: { xs: 2, sm: 2.5, lg: 3 } }}>
 
         {/* Date Range Filter */}
         <Paper sx={{ p: 3, mb: 3 }}>
@@ -264,13 +263,6 @@ export default function Reports() {
                 InputLabelProps={{ shrink: true }}
               />
             </Stack>
-            <Button
-              onClick={() => exportReport(activeTab)}
-              variant="outlined"
-              startIcon={<DownloadIcon />}
-            >
-              Export Report
-            </Button>
           </Box>
         </Paper>
 

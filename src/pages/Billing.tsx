@@ -56,7 +56,7 @@ interface NewPayment {
   notes?: string
 }
 
-export default function Billing() {
+export default function Renewal() {
   const [payments, setPayments] = useState<Payment[]>([])
   const [filteredPayments, setFilteredPayments] = useState<Payment[]>([])
   const [loading, setLoading] = useState(false)
@@ -242,10 +242,10 @@ export default function Billing() {
         paymentMethod: 'cash',
         notes: ''
       })
-      alert('Payment recorded successfully!')
+      alert('Renewal processed successfully!')
     } catch (error) {
       console.error('Error adding payment:', error)
-      alert('Failed to record payment')
+      alert('Failed to process renewal')
     }
   }
 
@@ -300,7 +300,7 @@ export default function Billing() {
 
   const exportBilling = async () => {
     try {
-      alert('Exporting billing report... (Feature to be implemented)')
+      alert('Exporting renewal report... (Feature to be implemented)')
     } catch (error) {
       console.error('Error exporting billing:', error)
     }
@@ -311,53 +311,20 @@ export default function Billing() {
   const paidPayments = filteredPayments.filter(p => p.status === 'paid')
 
   return (
-    <Box >
-      <Box sx={{ p: { xs: 2, sm: 3, lg: 4 } }}>
-        {/* Enhanced Header Section */}
-        <Box sx={{ 
-          mb: 4, 
-          p: 3, 
-          bgcolor: 'background.paper', 
-          borderRadius: 2, 
-          border: 1, 
-          borderColor: 'divider',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 2
-        }}>
-          <Box>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 1 }}>
-              Billing & Payments
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-              Track payments, manage billing, and monitor revenue streams
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {filteredPayments.length} payment records • Total revenue: {formatCurrency(totalRevenue)}
-            </Typography>
-          </Box>
-          
-          <Stack direction="row" spacing={2}>
-            <Button
-              onClick={exportBilling}
-              variant="outlined"
-              startIcon={<DownloadIcon />}
-              size="medium"
-            >
-              Export
-            </Button>
-            <Button
-              onClick={() => setShowAddForm(true)}
-              variant="contained"
-              startIcon={<AddIcon />}
-              size="medium"
-            >
-              Record Payment
-            </Button>
-          </Stack>
-        </Box>
+    <Box>
+      {/* Hidden buttons for triggering from header */}
+      <button 
+        id="billing-export-btn" 
+        onClick={exportBilling}
+        style={{ display: 'none' }}
+      />
+      <button 
+        id="billing-new-btn" 
+        onClick={() => setShowAddForm(true)}
+        style={{ display: 'none' }}
+      />
+      
+      <Box sx={{ p: { xs: 2, sm: 2.5, lg: 3 } }}>
 
         {/* Summary Cards */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -415,7 +382,7 @@ export default function Billing() {
             <Grid item xs={12} md={6} lg={4}>
               <TextField
                 fullWidth
-                placeholder="Search members or packages..."
+                placeholder="Search members or renewal packages..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 InputProps={{
@@ -472,19 +439,19 @@ export default function Billing() {
             <Box sx={{ p: 4, textAlign: 'center' }}>
               <CircularProgress sx={{ mb: 2 }} />
               <Typography variant="body2" color="text.secondary">
-                Loading payments...
+                Loading renewals...
               </Typography>
             </Box>
           ) : filteredPayments.length === 0 ? (
             <Box sx={{ p: 4, textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                No payments found
+                No renewals found
               </Typography>
               <Button
                 onClick={() => setShowAddForm(true)}
                 variant="contained"
               >
-                Record Your First Payment
+                Process Your First Renewal
               </Button>
             </Box>
           ) : (
@@ -568,7 +535,7 @@ export default function Billing() {
           <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="card w-full max-w-md">
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900">Record New Payment</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Process Membership Renewal</h2>
                 <button
                   onClick={() => setShowAddForm(false)}
                   className="p-2 hover:bg-gray-100 rounded-md"
@@ -626,7 +593,7 @@ export default function Billing() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Payment Method *
+                    Renewal Payment Method *
                   </label>
                   <select
                     value={newPayment.paymentMethod}
@@ -649,7 +616,7 @@ export default function Billing() {
                     onChange={(e) => setNewPayment(prev => ({ ...prev, notes: e.target.value }))}
                     rows={2}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Add any notes about this payment..."
+                    placeholder="Add any notes about this renewal..."
                   />
                 </div>
 
@@ -664,7 +631,7 @@ export default function Billing() {
                     onClick={handleAddPayment}
                     className="btn-primary"
                   >
-                    Record Payment
+                    Process Renewal
                   </button>
                 </div>
               </div>

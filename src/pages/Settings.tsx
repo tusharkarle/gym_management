@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { env } from '../config/env'
 import {
   Box,
   Typography,
@@ -19,7 +20,9 @@ import {
   CardContent,
   CardActions,
   Divider,
-  Stack
+  Stack,
+  IconButton,
+  Chip
 } from '@mui/material'
 import {
   Settings as SettingsIcon,
@@ -29,8 +32,14 @@ import {
   Notifications as NotificationsIcon,
   Security as SecurityIcon,
   Description as DocumentIcon,
-  Check as CheckIcon
+  Check as CheckIcon,
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  People as PeopleIcon
 } from '@mui/icons-material'
+import PackageForm from '../components/forms/PackageForm'
+import { PackageFormData } from '../types'
 
 interface GymSettings {
   gymName: string
@@ -41,11 +50,15 @@ interface GymSettings {
   registrationNumber?: string
 }
 
-interface FeeSettings {
-  admissionFee: number
-  lateFeePercentage: number
-  renewalDiscountPercentage: number
-  securityDeposit: number
+interface Package {
+  id: number
+  name: string
+  durationMonths: 1 | 3 | 6 | 12
+  price: number
+  description?: string
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
 }
 
 interface NotificationSettings {
@@ -63,22 +76,61 @@ interface BackupSettings {
 }
 
 export default function Settings() {
-  const [activeTab, setActiveTab] = useState<'gym' | 'fees' | 'notifications' | 'backup'>('gym')
+  const [activeTab, setActiveTab] = useState<'gym' | 'packages' | 'notifications' | 'backup'>('gym')
   const [gymSettings, setGymSettings] = useState<GymSettings>({
-    gymName: 'FitLife Gym',
+    gymName: env.gymName,
     address: '123 Fitness Street, Health City, HC 12345',
-    phone: '+91 98765 43210',
-    email: 'info@fitlifegym.com',
-    website: 'www.fitlifegym.com',
-    registrationNumber: 'GYM2024001'
+    phone: env.gymContactPhone,
+    email: env.gymContactEmail,
+    website: 'www.aimsfitness.com',
+    registrationNumber: 'AFC2024001'
   })
   
-  const [feeSettings, setFeeSettings] = useState<FeeSettings>({
-    admissionFee: 500,
-    lateFeePercentage: 5,
-    renewalDiscountPercentage: 10,
-    securityDeposit: 1000
-  })
+  const [packages, setPackages] = useState<Package[]>([
+    {
+      id: 1,
+      name: "Basic Membership",
+      durationMonths: 1,
+      price: 2000,
+      description: "Access to gym equipment and basic facilities",
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: 2,
+      name: "Premium Quarterly",
+      durationMonths: 3,
+      price: 5500,
+      description: "3-month package with personal trainer sessions",
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: 3,
+      name: "Premium Half-Yearly",
+      durationMonths: 6,
+      price: 10000,
+      description: "6-month package with full access and diet consultation",
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: 4,
+      name: "Annual Gold",
+      durationMonths: 12,
+      price: 18000,
+      description: "Complete annual package with all amenities",
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ])
+  
+  const [showAddPackageForm, setShowAddPackageForm] = useState(false)
+  const [editingPackage, setEditingPackage] = useState<Package | null>(null)
   
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
     emailNotifications: true,
@@ -91,7 +143,7 @@ export default function Settings() {
   const [backupSettings, setBackupSettings] = useState<BackupSettings>({
     autoBackup: true,
     backupFrequency: 'daily',
-    backupLocation: '/Users/Documents/GymBackups'
+    backupLocation: `/Users/Documents/${env.gymName}Backups`
   })
 
   const [isSaving, setIsSaving] = useState(false)
@@ -117,8 +169,55 @@ export default function Settings() {
     setGymSettings(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleFeeSettingsChange = (field: keyof FeeSettings, value: number) => {
-    setFeeSettings(prev => ({ ...prev, [field]: value }))
+  const handleAddPackage = async (data: PackageFormData) => {
+    try {
+      const newPackage: Package = {
+        id: Math.max(...packages.map(p => p.id)) + 1,
+        ...data,
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+      setPackages(prev => [...prev, newPackage])
+      setShowAddPackageForm(false)
+      setSaveMessage('Package added successfully!')
+      setTimeout(() => setSaveMessage(''), 3000)
+    } catch (error) {
+      console.error('Error adding package:', error)
+      setSaveMessage('Error adding package')
+    }
+  }
+
+  const handleEditPackage = async (data: PackageFormData) => {
+    if (!editingPackage) return
+    
+    try {
+      const updatedPackage = {
+        ...editingPackage,
+        ...data,
+        updatedAt: new Date()
+      }
+      setPackages(prev => prev.map(p => p.id === editingPackage.id ? updatedPackage : p))
+      setEditingPackage(null)
+      setSaveMessage('Package updated successfully!')
+      setTimeout(() => setSaveMessage(''), 3000)
+    } catch (error) {
+      console.error('Error updating package:', error)
+      setSaveMessage('Error updating package')
+    }
+  }
+
+  const handleDeletePackage = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this package?')) return
+    
+    try {
+      setPackages(prev => prev.filter(p => p.id !== id))
+      setSaveMessage('Package deleted successfully!')
+      setTimeout(() => setSaveMessage(''), 3000)
+    } catch (error) {
+      console.error('Error deleting package:', error)
+      setSaveMessage('Error deleting package')
+    }
   }
 
   const handleNotificationChange = (field: keyof NotificationSettings) => {
@@ -137,44 +236,19 @@ export default function Settings() {
     }).format(amount)
   }
 
+  const getDurationText = (months: number) => {
+    if (months === 1) return '1 Month'
+    if (months < 12) return `${months} Months`
+    return `${months / 12} Year${months > 12 ? 's' : ''}`
+  }
+
+  const getMonthlyRate = (price: number, months: number) => {
+    return price / months
+  }
+
   return (
-    <Box >
-      <Box sx={{ p: { xs: 2, sm: 3, lg: 4 } }}>
-        {/* Enhanced Header Section */}
-        <Box sx={{ 
-          mb: 4, 
-          p: 3, 
-          bgcolor: 'background.paper', 
-          borderRadius: 2, 
-          border: 1, 
-          borderColor: 'divider',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 2
-        }}>
-          <Box>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 1 }}>
-              Application Settings
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-              Configure gym information, fees, notifications, and security preferences
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Customize your gym management system to fit your needs
-            </Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="caption" color="text.secondary">
-              Last updated:
-            </Typography>
-            <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 'bold' }}>
-              {new Date().toLocaleDateString('en-IN')}
-            </Typography>
-          </Box>
-        </Box>
+    <Box>
+      <Box sx={{ p: { xs: 2, sm: 2.5, lg: 3 } }}>
 
         {/* Save Success Message */}
         {saveMessage && (
@@ -201,8 +275,8 @@ export default function Settings() {
               iconPosition="start"
             />
             <Tab 
-              label="Fee Management" 
-              value="fees" 
+              label="Package Management" 
+              value="packages" 
               icon={<CurrencyIcon />}
               iconPosition="start"
             />
@@ -211,12 +285,14 @@ export default function Settings() {
               value="notifications" 
               icon={<NotificationsIcon />}
               iconPosition="start"
+              disabled
             />
             <Tab 
               label="Backup & Security" 
               value="backup" 
               icon={<SecurityIcon />}
               iconPosition="start"
+              disabled
             />
           </Tabs>
         </Box>
@@ -319,129 +395,90 @@ export default function Settings() {
           </Card>
         )}
 
-        {/* Fee Management Tab */}
-        {activeTab === 'fees' && (
+        {/* Package Management Tab */}
+        {activeTab === 'packages' && (
           <Card>
             <CardContent>
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', mb: 1, color: 'primary.main' }}>
                   <CurrencyIcon sx={{ mr: 1 }} />
-                  Fee Management
+                  Package Management
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Configure admission fees, late fees, and other charges
+                  Manage membership packages and pricing
                 </Typography>
               </Box>
               
+
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Admission Fee (₹)"
-                    value={feeSettings.admissionFee}
-                    onChange={(e) => handleFeeSettingsChange('admissionFee', parseFloat(e.target.value) || 0)}
-                    InputProps={{ inputProps: { min: 0 } }}
-                    helperText="One-time fee charged for new member registration"
-                  />
-                </Grid>
+                {packages.map((pkg) => (
+                  <Grid item xs={12} md={6} lg={4} key={pkg.id}>
+                    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                      <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+                          <Box>
+                            <Typography variant="subtitle1" component="h3" gutterBottom>
+                              {pkg.name}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {getDurationText(pkg.durationMonths)}
+                            </Typography>
+                          </Box>
+                          <Stack direction="row" spacing={1}>
+                            <IconButton
+                              onClick={() => setEditingPackage(pkg)}
+                              size="small"
+                              color="primary"
+                              title="Edit Package"
+                            >
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              onClick={() => handleDeletePackage(pkg.id)}
+                              size="small"
+                              color="error"
+                              title="Delete Package"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Stack>
+                        </Box>
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Security Deposit (₹)"
-                    value={feeSettings.securityDeposit}
-                    onChange={(e) => handleFeeSettingsChange('securityDeposit', parseFloat(e.target.value) || 0)}
-                    InputProps={{ inputProps: { min: 0 } }}
-                    helperText="Refundable security deposit"
-                  />
-                </Grid>
+                        <Box sx={{ mb: 1.5 }}>
+                          <Typography variant="h5" color="primary" fontWeight="bold">
+                            {formatCurrency(pkg.price)}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {formatCurrency(getMonthlyRate(pkg.price, pkg.durationMonths))}/month
+                          </Typography>
+                        </Box>
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Late Fee Percentage (%)"
-                    value={feeSettings.lateFeePercentage}
-                    onChange={(e) => handleFeeSettingsChange('lateFeePercentage', parseFloat(e.target.value) || 0)}
-                    InputProps={{ inputProps: { min: 0, max: 100, step: 0.1 } }}
-                    helperText="Percentage charged on overdue payments"
-                  />
-                </Grid>
+                        {pkg.description && (
+                          <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
+                            {pkg.description}
+                          </Typography>
+                        )}
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label="Renewal Discount (%)"
-                    value={feeSettings.renewalDiscountPercentage}
-                    onChange={(e) => handleFeeSettingsChange('renewalDiscountPercentage', parseFloat(e.target.value) || 0)}
-                    InputProps={{ inputProps: { min: 0, max: 100, step: 0.1 } }}
-                    helperText="Discount for early renewals"
-                  />
-                </Grid>
+                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                          <Chip
+                            label={pkg.isActive ? 'Active' : 'Inactive'}
+                            color={pkg.isActive ? 'success' : 'default'}
+                            size="small"
+                          />
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
               </Grid>
 
-              {/* Fee Summary */}
-              <Paper sx={{ mt: 4, p: 3, bgcolor: 'grey.50' }}>
-                <Typography variant="h6" gutterBottom>
-                  Fee Summary
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={6} md={3}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="body2" color="text.secondary">
-                        Admission Fee
-                      </Typography>
-                      <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 'bold' }}>
-                        {formatCurrency(feeSettings.admissionFee)}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={6} md={3}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="body2" color="text.secondary">
-                        Security Deposit
-                      </Typography>
-                      <Typography variant="h6" sx={{ color: 'success.main', fontWeight: 'bold' }}>
-                        {formatCurrency(feeSettings.securityDeposit)}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={6} md={3}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="body2" color="text.secondary">
-                        Late Fee
-                      </Typography>
-                      <Typography variant="h6" sx={{ color: 'error.main', fontWeight: 'bold' }}>
-                        {feeSettings.lateFeePercentage}%
-                      </Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={6} md={3}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="body2" color="text.secondary">
-                        Renewal Discount
-                      </Typography>
-                      <Typography variant="h6" sx={{ color: 'warning.main', fontWeight: 'bold' }}>
-                        {feeSettings.renewalDiscountPercentage}%
-                      </Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Paper>
-
-              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
-                  onClick={() => handleSaveSettings('Fee')}
-                  disabled={isSaving}
-                  variant="contained"
-                  size="large"
-                >
-                  {isSaving ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </Box>
+              {packages.length === 0 && (
+                <Paper sx={{ p: 4, textAlign: 'center' }}>
+                  <Typography variant="body1" color="text.secondary">
+                    No packages configured yet.
+                  </Typography>
+                </Paper>
+              )}
             </CardContent>
           </Card>
         )}
@@ -655,6 +692,29 @@ export default function Settings() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Add Package Form */}
+        <PackageForm
+          isOpen={showAddPackageForm}
+          onClose={() => setShowAddPackageForm(false)}
+          onSubmit={handleAddPackage}
+        />
+
+        {/* Edit Package Form */}
+        {editingPackage && (
+          <PackageForm
+            isOpen={true}
+            onClose={() => setEditingPackage(null)}
+            onSubmit={handleEditPackage}
+            initialData={{
+              name: editingPackage.name,
+              durationMonths: editingPackage.durationMonths,
+              price: editingPackage.price,
+              description: editingPackage.description,
+            }}
+            isEditing={true}
+          />
         )}
       </Box>
     </Box>

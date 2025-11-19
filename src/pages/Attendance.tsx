@@ -156,16 +156,8 @@ export default function Attendance() {
   const isToday = selectedDate === new Date().toISOString().split('T')[0]
 
   return (
-    <Box sx={{ height: '100vh', overflow: 'auto' }}>
-      <Box sx={{ p: { xs: 2, sm: 3, lg: 4 } }}>
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h3" component="h1" gutterBottom>
-            Attendance
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Track member check-ins and attendance records
-          </Typography>
-        </Box>
+    <Box>
+      <Box sx={{ p: { xs: 2, sm: 2.5, lg: 3 } }}>
 
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {/* Quick Check-in Form */}

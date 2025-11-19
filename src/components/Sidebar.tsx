@@ -1,4 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom'
+import { env } from '../config/env'
+import { useAuth } from '../contexts/AuthContext'
 import {
   Drawer,
   Box,
@@ -10,30 +12,36 @@ import {
   Typography,
   Avatar,
   Divider,
-  Stack
+  Stack,
+  IconButton,
+  Tooltip
 } from '@mui/material'
 import {
   Dashboard as DashboardIcon,
   People as PeopleIcon,
-  Inventory as PackageIcon,
   Today as AttendanceIcon,
   BarChart as ReportsIcon,
   CurrencyRupee as BillingIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  Logout as LogoutIcon
 } from '@mui/icons-material'
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: DashboardIcon },
   { name: 'Members', href: '/members', icon: PeopleIcon },
-  { name: 'Packages', href: '/packages', icon: PackageIcon },
   { name: 'Attendance', href: '/attendance', icon: AttendanceIcon },
-  { name: 'Billing', href: '/billing', icon: BillingIcon },
+  { name: 'Renewal', href: '/billing', icon: BillingIcon },
   { name: 'Reports', href: '/reports', icon: ReportsIcon },
   { name: 'Settings', href: '/settings', icon: SettingsIcon },
 ]
 
 export default function Sidebar() {
   const location = useLocation()
+  const { logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+  }
 
   return (
     <Drawer
@@ -52,28 +60,30 @@ export default function Sidebar() {
     >
       <Box sx={{ overflow: 'auto', display: 'flex', flexDirection: 'column', height: '100%' }}>
         {/* Logo Section */}
-        <Box sx={{ p: 3 }}>
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar sx={{ bgcolor: 'primary.main', width: 32, height: 32 }}>
-              <Typography variant="h6" fontWeight="bold">
-                G
+        <Box sx={{ p: 2.5 }}> {/* Reduced padding */}
+          <Stack direction="row" alignItems="center" spacing={1.5}> {/* Reduced spacing */}
+            <Avatar sx={{ bgcolor: 'primary.main', width: 28, height: 28 }}> {/* Reduced size */}
+              <Typography variant="body1" fontWeight="bold">
+                🏋️
               </Typography>
             </Avatar>
-            <Typography variant="h6" fontWeight="semibold">
-              Gym Manager
+            <Typography variant="subtitle1" fontWeight="semibold"> {/* Reduced from h6 to subtitle1 */}
+              {env.gymName}
             </Typography>
           </Stack>
         </Box>
 
+        <Divider />
+
         {/* Navigation */}
-        <Box sx={{ flexGrow: 1, px: 2 }}>
+        <Box sx={{ flexGrow: 1, px: 1.5, py: 1.5 }}> {/* Reduced padding */}
           <List disablePadding>
             {navigation.map((item) => {
               const Icon = item.icon
               const isActive = location.pathname === item.href
               
               return (
-                <ListItem key={item.name} disablePadding sx={{ mb: 0.5 }}>
+                <ListItem key={item.name} disablePadding sx={{ mb: 0.25 }}> {/* Reduced margin */}
                   <ListItemButton
                     component={NavLink}
                     to={item.href}
@@ -96,13 +106,14 @@ export default function Sidebar() {
                       },
                     }}
                   >
-                    <ListItemIcon sx={{ minWidth: 40 }}>
-                      <Icon />
+                    <ListItemIcon sx={{ minWidth: 36 }}> {/* Reduced min width */}
+                      <Icon sx={{ fontSize: '1.1rem' }} /> {/* Smaller icons */}
                     </ListItemIcon>
                     <ListItemText 
                       primary={item.name}
                       primaryTypographyProps={{
-                        fontWeight: 500
+                        fontWeight: 500,
+                        variant: 'body2' // Smaller text
                       }}
                     />
                   </ListItemButton>
@@ -112,23 +123,39 @@ export default function Sidebar() {
           </List>
         </Box>
 
-        {/* User Section */}
+        {/* Logout Section */}
         <Box sx={{ mt: 'auto' }}>
           <Divider />
-          <Box sx={{ p: 2 }}>
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <Avatar sx={{ width: 32, height: 32, bgcolor: 'grey.300' }} />
-              <Box>
-                <Typography variant="body2" fontWeight="medium">
-                  Admin User
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  admin@gym.com
-                </Typography>
-              </Box>
-            </Stack>
+          <Box sx={{ p: 1.5 }}> {/* Reduced padding */}
+            <ListItemButton
+              onClick={handleLogout}
+              sx={{
+                borderRadius: 1,
+                '&:hover': {
+                  bgcolor: 'error.50',
+                  '& .MuiListItemIcon-root': {
+                    color: 'error.main',
+                  },
+                  '& .MuiListItemText-primary': {
+                    color: 'error.main',
+                  },
+                },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 36 }}> {/* Reduced min width */}
+                <LogoutIcon sx={{ fontSize: '1.1rem' }} /> {/* Smaller icon */}
+              </ListItemIcon>
+              <ListItemText 
+                primary="Logout"
+                primaryTypographyProps={{
+                  fontWeight: 500,
+                  variant: 'body2' // Smaller text
+                }}
+              />
+            </ListItemButton>
           </Box>
         </Box>
+
       </Box>
     </Drawer>
   )

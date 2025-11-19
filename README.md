@@ -1,6 +1,6 @@
-# 🏋️ Gym Management System
+# 🏋️ AIMS Fitness Club Management System
 
-A comprehensive desktop application for managing gym operations, built with React, TypeScript, and Electron.
+A comprehensive desktop application for managing AIMS Fitness Club operations, built with React, TypeScript, and Electron.
 
 ## ✨ Features
 
@@ -45,6 +45,22 @@ A comprehensive desktop application for managing gym operations, built with Reac
 ### Prerequisites
 - Node.js 18+ installed
 - npm or yarn package manager
+
+### Environment Setup
+
+1. Copy the example environment file:
+```bash
+cp .env.example .env
+```
+
+2. Update the `.env` file with your gym's information:
+```bash
+VITE_GYM_NAME=Your Gym Name
+VITE_GYM_TAGLINE=Your Fitness Tagline
+VITE_GYM_CONTACT_EMAIL=info@yourgym.com
+VITE_GYM_CONTACT_PHONE=+91-XXXXXXXXXX
+VITE_APP_TITLE=Your Gym Management System
+```
 
 ### Installation & Development
 
@@ -193,4 +209,16 @@ For technical support or feature requests, please refer to the project documenta
 
 ---
 
-**Built with ❤️ for modern gym management**
+**Built with ❤️ for AIMS Fitness Club and modern gym management**
+
+## 🔧 Environment Configuration
+
+The application supports dynamic branding through environment variables:
+
+- `VITE_GYM_NAME`: Your gym's name (displayed throughout the app)
+- `VITE_GYM_TAGLINE`: Your gym's tagline or slogan
+- `VITE_GYM_CONTACT_EMAIL`: Primary contact email
+- `VITE_GYM_CONTACT_PHONE`: Primary contact phone number
+- `VITE_APP_TITLE`: Application title (used in browser title and Electron window)
+
+All environment variables prefixed with `VITE_` are available in the frontend application.
